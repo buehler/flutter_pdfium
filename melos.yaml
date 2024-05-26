@@ -1,0 +1,19 @@
+name: flutter_pdfium
+
+# repository: https://github.com/TODO
+
+packages:
+  - packages/flutter_pdfium*
+  - packages/example
+
+scripts:
+  ffigen:
+    description: Generate FFI bindings
+    exec: dart run ffigen --config ffigen.yaml
+    packageFilters:
+      dependsOn:
+        - ffigen
+
+ide:
+  intellij:
+    enabled: false

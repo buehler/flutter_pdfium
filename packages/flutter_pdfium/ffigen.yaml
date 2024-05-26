@@ -1,0 +1,60 @@
+# Run with `dart run ffigen --config ffigen.yaml`.
+name: FPDF
+description: FFI bindings for `PDFium Library`
+
+output: 'lib/src/bindings/fpdf.dart'
+headers:
+  entry-points:
+    - 'pdfium/include/fpdfview.h'
+    - 'pdfium/include/fpdf_doc.h'
+    - 'pdfium/include/fpdf_text.h'
+
+preamble: |
+  // ignore_for_file: always_specify_types
+  // ignore_for_file: camel_case_types
+  // ignore_for_file: non_constant_identifier_names
+  // ignore_for_file: unused_field, unused_element
+
+comments:
+  style: any
+  length: full
+
+functions:
+  include:
+    - FPDF.*
+  exclude:
+    - FPDFAction.*
+    - FPDFLink.*
+  rename:
+    'FPDFBookmark_(.*)': Bookmark$1
+    'FPDFDest_(.*)': Destination$1
+    'FPDFText_(.*)': Text$1
+    'FPDF_(.*)': $1
+    'FPDF(.*)': $1
+
+structs:
+  exclude:
+    - .*
+
+unions:
+  exclude:
+    - .*
+
+enums:
+  exclude:
+    - .*
+
+unnamed-enums:
+  exclude:
+    - .*
+
+macros:
+  include:
+    - FPDF_.*
+    - PAGEMODE_.*
+  exclude:
+    - FPDF_UNSP_.*
+
+globals:
+  exclude:
+    - .*
