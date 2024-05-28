@@ -9,6 +9,8 @@ import 'utils/lazy.dart';
 FPDF initLibrary() {
   final lookup = switch (Platform.operatingSystem) {
     'windows' => ffi.DynamicLibrary.open('pdfium.dll').lookup,
+    'ios' => ffi.DynamicLibrary.process().lookup,
+    // 'ios' => ffi.DynamicLibrary.open('pdfium').lookup,
     _ => throw Exception(
         'Platform ${Platform.operatingSystem} is not yet supported.'),
   };

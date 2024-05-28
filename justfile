@@ -1,5 +1,8 @@
+bblanchon_version := "chromium%2F6281"
+paulo_version := "6276"
 
-@configure: melos-bootstrap
+@default:
+    just -l
 
 @melos-bootstrap:
     dart pub run melos bootstrap
@@ -7,36 +10,32 @@
 @ffigen:
     dart pub run melos run ffigen
 
-@_download-archive platform version="latest":
-    mkdir -p ./.tmp/pdfium-{{platform}}
-    curl -L -o ./.tmp/pdfium-{{platform}}.tgz https://github.com/bblanchon/pdfium-binaries/releases/{{version}}/download/pdfium-{{platform}}.tgz
-    tar -xzf ./.tmp/pdfium-{{platform}}.tgz -C ./.tmp/pdfium-{{platform}}
+@download-archives:
+    mkdir -p ./.tmp
 
-@_cleanup-download-cache:
+    curl -L -o ./.tmp/pdfium-win-x64.tgz https://github.com/bblanchon/pdfium-binaries/releases/download/{{bblanchon_version}}/pdfium-win-x64.tgz
+    mkdir -p ./.tmp/pdfium-win-x64
+    tar -xzf ./.tmp/pdfium-win-x64.tgz -C ./.tmp/pdfium-win-x64
+
+    curl -L -o ./.tmp/pdfium-ios.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/{{paulo_version}}/ios.tgz
+    mkdir -p ./.tmp/pdfium-ios
+    tar -xzf ./.tmp/pdfium-ios.tgz -C ./.tmp/pdfium-ios
+
+@cleanup-download-cache:
     rm -rf ./.tmp
 
-@download-headers: (_download-archive "ios-x64")
+@setup-headers:
     mkdir -p ./packages/flutter_pdfium/pdfium
-    cp -r ./.tmp/pdfium-ios-x64/include ./packages/flutter_pdfium/pdfium
-    echo "Downloaded pdfium headers for FFIGEN"
+    cp -r ./.tmp/pdfium-ios/release/include ./packages/flutter_pdfium/pdfium
+    echo "Setup pdfium headers for FFIGEN"
 
-@download-windows: (_download-archive "win-x64")
+@setup-windows:
     mkdir -p ./packages/flutter_pdfium_windows/pdfium
     cp ./.tmp/pdfium-win-x64/bin/pdfium.dll ./packages/flutter_pdfium_windows/pdfium
-    echo "Downloaded pdfium.dll for Windows"
+    echo "Setup pdfium.dll for Windows"
 
-@download-ios: (_download-archive "ios-x64") (_download-archive "ios-arm64")
-    mkdir -p ./packages/flutter_pdfium_ios/pdfium/x64
-    mkdir -p ./packages/flutter_pdfium_ios/pdfium/arm64
-    cp -r ./.tmp/pdfium-ios-x64/lib ./.tmp/pdfium-ios-x64/include ./packages/flutter_pdfium_ios/pdfium/x64
-    cp -r ./.tmp/pdfium-ios-arm64/lib ./.tmp/pdfium-ios-arm64/include ./packages/flutter_pdfium_ios/pdfium/arm64
-    echo "Downloaded pdfium dylib for iOS"
-
-@build-ios-framework:
-    rm -rf ./packages/flutter_pdfium_ios/pdfium/pdfium.xcframework
-    xcodebuild -create-xcframework \
-        -library ./packages/flutter_pdfium_ios/pdfium/x64/lib/libpdfium.dylib \
-        -headers ./packages/flutter_pdfium_ios/pdfium/x64/include \
-        -library ./packages/flutter_pdfium_ios/pdfium/arm64/lib/libpdfium.dylib \
-        -headers ./packages/flutter_pdfium_ios/pdfium/arm64/include \
-        -output ./packages/flutter_pdfium_ios/pdfium/pdfium.xcframework
+@setup-ios:
+    mkdir -p ./packages/flutter_pdfium_ios/ios
+    rm -rf ./packages/flutter_pdfium_ios/ios/pdfium.xcframework
+    cp -r ./.tmp/pdfium-ios/release/pdfium.xcframework ./packages/flutter_pdfium_ios/ios
+    echo "Setup pdfium framework for iOS"
