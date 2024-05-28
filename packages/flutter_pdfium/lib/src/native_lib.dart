@@ -6,11 +6,19 @@ import 'package:ffi/ffi.dart';
 import 'bindings/fpdf.dart';
 import 'utils/lazy.dart';
 
+typedef _Lookup = ffi.Pointer<T> Function<T extends ffi.NativeType>(
+    String symbolName);
+
+_Lookup _platformLookup(String prefix) {
+  final library = ffi.DynamicLibrary.process();
+  return <T extends ffi.NativeType>(String symbolName) =>
+      library.lookup('$prefix$symbolName');
+}
+
 FPDF initLibrary() {
   final lookup = switch (Platform.operatingSystem) {
     'windows' => ffi.DynamicLibrary.open('pdfium.dll').lookup,
-    'ios' => ffi.DynamicLibrary.process().lookup,
-    // 'ios' => ffi.DynamicLibrary.open('pdfium').lookup,
+    'ios' => _platformLookup('IOS_'),
     _ => throw Exception(
         'Platform ${Platform.operatingSystem} is not yet supported.'),
   };

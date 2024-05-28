@@ -1,5 +1,5 @@
 name: flutter_pdfium_ios
-description: 'A new Flutter plugin project.'
+description: 'A new Flutter FFI plugin project.'
 version: 0.0.1
 homepage: asdf
 
@@ -12,11 +12,10 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  ffi: ^2.1.0
 
 flutter:
   plugin:
     platforms:
       ios:
-        pluginClass: FlutterPdfiumIosPlugin
+        ffiPlugin: true
