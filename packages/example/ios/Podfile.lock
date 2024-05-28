@@ -15,7 +15,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_pdfium_ios: 08e0750c595e743a2298df0cd57b6134dcdc4645
+  flutter_pdfium_ios: 06cbe195ea9dbc791bdd1bd7ea172a18345028ca
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 

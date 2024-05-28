@@ -5,29 +5,26 @@
 Pod::Spec.new do |s|
   s.name             = 'flutter_pdfium_ios'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter FFI plugin project.'
+  s.summary          = 'A new Flutter plugin project.'
   s.description      = <<-DESC
-A new Flutter FFI plugin project.
+A new Flutter plugin project.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Your Company' => 'email@example.com' }
-
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
 
-  s.pod_target_xcconfig = {
-    'DEFINES_MODULE' => 'YES',
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
-    'STRIP_STYLE' => 'non-global'
-  }
+  # Flutter.framework does not contain a i386 slice.
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386 arm64' }
   s.swift_version = '5.0'
 
-  # s.libraries = ['c++', 'z']
-  s.vendored_frameworks = 'pdfium.framework'
-  s.vendored_libraries = 'pdfium'
-  s.preserve_paths = 'pdfium.framework'
+  s.vendored_frameworks = 'pdfium.xcframework'
+  s.preserve_paths = 'pdfium.xcframework'
   s.xcconfig = { 'OTHER_LDFLAGS' => '-framework pdfium' }
+  s.libraries = ['c++', 'z']
+  # s.vendored_libraries = 'Frameworks/libpdfium.a'
+  # s.pod_target_xcconfig = { "OTHER_LDFLAGS" => "-framework" }
 end
