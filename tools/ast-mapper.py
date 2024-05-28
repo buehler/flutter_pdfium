@@ -22,11 +22,6 @@ prelim_header = """
 
 """
 
-prelim_impl = """
-#include "flutter_pdfium_ios.h"
-
-"""
-
 
 def create_mappings(args: argparse.Namespace) -> None:
     functions = {}
@@ -66,7 +61,7 @@ def create_mappings(args: argparse.Namespace) -> None:
     with open(
         os.path.join("./", "packages", args.output, "src", f"{args.output}.c"), "w"
     ) as out:
-        out.write(prelim_impl)
+        out.write(f'#include "{args.output}.h"')
         for file, funcs in functions.items():
             for name, type, params in funcs:
                 out.writelines(

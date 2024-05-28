@@ -1,0 +1,21 @@
+name: flutter_pdfium_macos
+description: 'A new Flutter FFI plugin project.'
+version: 0.0.1
+homepage: hjk
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  ffi: ^2.1.0
+
+flutter:
+  plugin:
+    platforms:
+      macos:
+        ffiPlugin: true
