@@ -19,6 +19,7 @@ FPDF initLibrary() {
   final lookup = switch (Platform.operatingSystem) {
     'windows' => ffi.DynamicLibrary.open('pdfium.dll').lookup,
     'ios' => _platformLookup('IOS_'),
+    'macos' => _platformLookup('MAC_'),
     _ => throw Exception(
         'Platform ${Platform.operatingSystem} is not yet supported.'),
   };

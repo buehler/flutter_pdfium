@@ -61,7 +61,7 @@ def create_mappings(args: argparse.Namespace) -> None:
     with open(
         os.path.join("./", "packages", args.output, "src", f"{args.output}.c"), "w"
     ) as out:
-        out.write(f'#include "{args.output}.h"')
+        out.write(f'#include "{args.output}.h"\n')
         for file, funcs in functions.items():
             for name, type, params in funcs:
                 out.writelines(
