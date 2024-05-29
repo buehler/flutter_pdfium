@@ -43,28 +43,9 @@ FPDF initLibrary() {
   //   return FPDF.fromLookup(library.lookup);
   // }
 
-  // if (Platform.isWindows) {
-  //   library = ffi.DynamicLibrary.open('pdfium.dll');
-  //   return PDFiumLibrary._(library.lookup);
-  // }
-
   // if (Platform.isLinux) {
   //   library = ffi.DynamicLibrary.open('libpdfium.so');
   //   return PDFiumLibrary._(library.lookup);
-  // }
-
-  // if (Platform.isIOS) {
-  //   library = ffi.DynamicLibrary.process();
-  //   ffi.Pointer<T> load<T extends ffi.NativeType>(String symbolName) =>
-  //       library!.lookup('IOS_$symbolName');
-  //   return PDFiumLibrary._(load);
-  // }
-
-  // if (Platform.isMacOS) {
-  //   library = ffi.DynamicLibrary.process();
-  //   ffi.Pointer<T> load<T extends ffi.NativeType>(String symbolName) =>
-  //       library!.lookup('MACOS_$symbolName');
-  //   return PDFiumLibrary._(load);
   // }
 }
 

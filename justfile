@@ -4,11 +4,14 @@ paulo_version := "6276"
 @default:
     just -l
 
+@configure: melos-bootstrap download-archives setup-headers setup-windows setup-ios setup-macos
+
 @melos-bootstrap:
     dart pub run melos bootstrap
 
 @ffigen:
     dart pub run melos run ffigen
+    echo "Generated FFI bindings"
 
 @download-archives:
     mkdir -p ./.tmp
@@ -25,10 +28,10 @@ paulo_version := "6276"
     mkdir -p ./.tmp/pdfium-macos
     tar -xzf ./.tmp/pdfium-macos.tgz -C ./.tmp/pdfium-macos
 
-@cleanup-download-cache:
+@clear:
     rm -rf ./.tmp
 
-@setup-headers:
+@setup-headers: && ffigen
     mkdir -p ./packages/flutter_pdfium/pdfium
     cp -r ./.tmp/pdfium-ios/release/include ./packages/flutter_pdfium/pdfium
     echo "Setup pdfium headers for FFIGEN"
@@ -38,7 +41,7 @@ paulo_version := "6276"
     cp ./.tmp/pdfium-win-x64/bin/pdfium.dll ./packages/flutter_pdfium_windows/pdfium
     echo "Setup pdfium.dll for Windows"
 
-@setup-ios:
+@setup-ios: && (_create-apple-lib-bindings "macos" "IOS_")
     mkdir -p ./packages/flutter_pdfium_ios/ios
     rm -rf ./packages/flutter_pdfium_ios/ios/pdfium.xcframework
     rm -rf ./packages/flutter_pdfium_ios/src/pdfium
@@ -46,22 +49,21 @@ paulo_version := "6276"
     cp -r ./.tmp/pdfium-ios/release/include ./packages/flutter_pdfium_ios/src/pdfium
     echo "Setup pdfium framework for iOS"
 
-@setup-macos:
+@setup-macos: && (_create-apple-lib-bindings "macos" "MAC_")
     rm -rf ./packages/flutter_pdfium_macos/macos/Frameworks
     mkdir -p ./packages/flutter_pdfium_macos/macos/Frameworks
     cp -r ./.tmp/pdfium-macos/release/lib/libpdfium.a ./packages/flutter_pdfium_macos/macos/Frameworks
     cp -r ./.tmp/pdfium-macos/release/include ./packages/flutter_pdfium_macos/src/pdfium
-    echo "Setup pdfium framework for macOS"
+    echo "Setup pdfium library for macOS"
 
-@create-apple-lib-bindings:
+@_create-apple-lib-bindings platform prefix:
     #! /bin/sh
+    rm -rf ./.tmp/ast
     mkdir -p ./.tmp/ast
     for header in $(find ./.tmp/pdfium-ios/release/include -name "*.h" -maxdepth 1 -type f); do
         echo "Create AST for $header"
         clang -Xclang -ast-dump=json -fsyntax-only $header > ./.tmp/ast/$(basename $header).json
     done
     echo "Created AST for all headers"
-    python ./tools/ast-mapper.py --prefix IOS_ ./.tmp/ast flutter_pdfium_ios
-    echo "Created AST mapping for iOS"
-    python ./tools/ast-mapper.py --prefix MAC_ ./.tmp/ast flutter_pdfium_macos
-    echo "Created AST mapping for macOS"
+    python ./tools/ast-mapper.py --prefix {{prefix}} ./.tmp/ast flutter_pdfium_{{platform}}
+    echo "Created AST mapping for {{platform}}"
