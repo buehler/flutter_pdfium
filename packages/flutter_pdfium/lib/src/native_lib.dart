@@ -20,6 +20,7 @@ FPDF initLibrary() {
     'windows' => ffi.DynamicLibrary.open('pdfium.dll').lookup,
     'ios' => _platformLookup('IOS_'),
     'macos' => _platformLookup('MAC_'),
+    'android' => ffi.DynamicLibrary.open('libpdfium.cr.so').lookup,
     _ => throw Exception(
         'Platform ${Platform.operatingSystem} is not yet supported.'),
   };
@@ -37,11 +38,6 @@ FPDF initLibrary() {
   malloc.free(configPointer);
 
   return fpdf;
-
-  // if (Platform.isAndroid) {
-  //   lookup = ffi.DynamicLibrary.open('libpdfium.cr.so');
-  //   return FPDF.fromLookup(library.lookup);
-  // }
 
   // if (Platform.isLinux) {
   //   library = ffi.DynamicLibrary.open('libpdfium.so');

@@ -1,6 +1,3 @@
-bblanchon_version := "chromium%2F6281"
-paulo_version := "6276"
-
 @default:
     just -l
 
@@ -16,19 +13,19 @@ paulo_version := "6276"
 @download-archives:
     mkdir -p ./.tmp
 
-    curl -L -o ./.tmp/pdfium-win-x64.tgz https://github.com/bblanchon/pdfium-binaries/releases/download/{{bblanchon_version}}/pdfium-win-x64.tgz
+    curl -L -o ./.tmp/pdfium-win-x64.tgz https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F6281/pdfium-win-x64.tgz
     mkdir -p ./.tmp/pdfium-win-x64
     tar -xzf ./.tmp/pdfium-win-x64.tgz -C ./.tmp/pdfium-win-x64
 
-    curl -L -o ./.tmp/pdfium-ios.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/{{paulo_version}}/ios.tgz
+    curl -L -o ./.tmp/pdfium-ios.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/6276/ios.tgz
     mkdir -p ./.tmp/pdfium-ios
     tar -xzf ./.tmp/pdfium-ios.tgz -C ./.tmp/pdfium-ios
 
-    curl -L -o ./.tmp/pdfium-macos.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/{{paulo_version}}/macos.tgz
+    curl -L -o ./.tmp/pdfium-macos.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/6276/macos.tgz
     mkdir -p ./.tmp/pdfium-macos
     tar -xzf ./.tmp/pdfium-macos.tgz -C ./.tmp/pdfium-macos
 
-    curl -L -o ./.tmp/pdfium-android.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/{{paulo_version}}/android.tgz
+    curl -L -o ./.tmp/pdfium-android.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/6008/android.tgz
     mkdir -p ./.tmp/pdfium-android
     tar -xzf ./.tmp/pdfium-android.tgz -C ./.tmp/pdfium-android
 
@@ -59,6 +56,12 @@ paulo_version := "6276"
     cp -r ./.tmp/pdfium-macos/release/lib/libpdfium.a ./packages/flutter_pdfium_macos/macos/Frameworks
     cp -r ./.tmp/pdfium-macos/release/include ./packages/flutter_pdfium_macos/src/pdfium
     echo "Setup pdfium library for macOS"
+
+@setup-android:
+    rm -rf ./packages/flutter_pdfium_android/android/src/main/jniLibs
+    mkdir -p ./packages/flutter_pdfium_android/android/src/main/jniLibs
+    cp -r ./.tmp/pdfium-android/release/lib/* ./packages/flutter_pdfium_android/android/src/main/jniLibs/
+    echo "Setup pdfium library for android"
 
 @_create-apple-lib-bindings platform prefix:
     #! /bin/sh
