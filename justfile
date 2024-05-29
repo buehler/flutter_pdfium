@@ -7,10 +7,10 @@ paulo_version := "6276"
 @configure: melos-bootstrap download-archives setup-headers setup-windows setup-ios setup-macos
 
 @melos-bootstrap:
-    dart pub run melos bootstrap
+    dart run melos bootstrap
 
 @ffigen:
-    dart pub run melos run ffigen
+    dart run melos run ffigen
     echo "Generated FFI bindings"
 
 @download-archives:
@@ -27,6 +27,10 @@ paulo_version := "6276"
     curl -L -o ./.tmp/pdfium-macos.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/{{paulo_version}}/macos.tgz
     mkdir -p ./.tmp/pdfium-macos
     tar -xzf ./.tmp/pdfium-macos.tgz -C ./.tmp/pdfium-macos
+
+    curl -L -o ./.tmp/pdfium-android.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/{{paulo_version}}/android.tgz
+    mkdir -p ./.tmp/pdfium-android
+    tar -xzf ./.tmp/pdfium-android.tgz -C ./.tmp/pdfium-android
 
 @clear:
     rm -rf ./.tmp

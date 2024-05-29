@@ -11,7 +11,9 @@ dependencies:
   ffi: ^2.1.2
   flutter:
     sdk: flutter
+  flutter_pdfium_android:
   flutter_pdfium_ios:
+  flutter_pdfium_linux:
   flutter_pdfium_macos:
   flutter_pdfium_windows:
 
