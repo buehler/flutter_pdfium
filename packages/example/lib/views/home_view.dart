@@ -1,9 +1,9 @@
-import 'package:example/example.screens.dart';
 import 'package:fluorflow/annotations.dart';
 import 'package:fluorflow/fluorflow.dart';
 import 'package:flutter/material.dart';
 
 import '../app.router.dart';
+import '../example.screens.dart';
 import '../widgets/usecase_card.dart';
 
 @Routable(
@@ -30,7 +30,15 @@ class HomeView extends StatelessWidget {
                           'Load a PDF file from memory and display its pages in a scrollable list',
                       onTap:
                           locator<NavigationService>().navigateToInMemoryView,
-                    )
+                    ),
+                    UseCaseCard(
+                      icon: Icons.bookmark,
+                      title: 'Bookmarks',
+                      description:
+                          'Show the document outline (bookmarks) of a PDF',
+                      onTap:
+                          locator<NavigationService>().navigateToBookmarksView,
+                    ),
                   ],
                 )),
       );

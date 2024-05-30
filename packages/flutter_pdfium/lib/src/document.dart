@@ -62,6 +62,22 @@ final class Document with Iterable<Page> {
   @override
   Iterator<Page> get iterator => _pages.map((lazy) => lazy()).iterator;
 
+  Iterable<Bookmark> get bookmarks sync* {
+    Iterable<(FPDF_BOOKMARK, int)> iterateChildren(
+        FPDF_BOOKMARK anchor, int level) sync* {
+      var child = fpdf().BookmarkGetFirstChild(_pointer, anchor);
+      while (child != ffi.nullptr) {
+        yield (child, level);
+        yield* iterateChildren(child, level + 1);
+
+        child = fpdf().BookmarkGetNextSibling(_pointer, child);
+      }
+    }
+
+    yield* iterateChildren(ffi.nullptr, 0)
+        .map((b) => Bookmark._(_pointer, b.$1, b.$2));
+  }
+
   /// Close the document and release all resources.
   void close() {
     for (final page in _pages) {
@@ -72,4 +88,33 @@ final class Document with Iterable<Page> {
 
   @override
   String toString() => 'Document{pageCount: $pageCount}';
+}
+
+final class Bookmark {
+  final FPDF_DOCUMENT _document;
+  final FPDF_BOOKMARK _bookmark;
+
+  final int depth;
+
+  const Bookmark._(this._document, this._bookmark, this.depth);
+
+  String get title {
+    final titleLength = fpdf().BookmarkGetTitle(_bookmark, ffi.nullptr, 0);
+    final dataBuffer = malloc<ffi.Uint16>(titleLength);
+    fpdf()
+        .BookmarkGetTitle(_bookmark, dataBuffer.cast<ffi.Void>(), titleLength);
+    final title = dataBuffer.cast<Utf16>().toDartString();
+    malloc.free(dataBuffer);
+
+    return title;
+  }
+
+  int get pageIndex {
+    final dest = fpdf().BookmarkGetDest(_document, _bookmark);
+    if (dest == ffi.nullptr) {
+      return -1;
+    }
+
+    return fpdf().DestinationGetDestPageIndex(_document, dest);
+  }
 }
