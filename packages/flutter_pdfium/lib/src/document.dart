@@ -117,4 +117,9 @@ final class Bookmark {
 
     return fpdf().DestinationGetDestPageIndex(_document, dest);
   }
+
+  // () get pos {
+  //   final dest = fpdf().BookmarkGetDest(_document, _bookmark);
+  //   fpdf().DestinationGetLocationInPage(dest, hasXVal, hasYVal, hasZoomVal, x, y, zoom)
+  // }
 }
