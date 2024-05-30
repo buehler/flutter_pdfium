@@ -11,9 +11,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-dev_dependencies:
-  ffi: ^2.1.0
-
 flutter:
   plugin:
     platforms:

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://github.com/smartive/flutter-design-system-generator/raw/main/design-system.schema.json",
+  "borderRadius": false,
+  "colors": false,
+  "spacings": false,
+  "typography": false
+}

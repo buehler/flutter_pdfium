@@ -1,5 +1,5 @@
 name: example
-description: 'A new Flutter project.'
+description: example project for flutter_pdfium
 publish_to: 'none'
 
 version: 0.0.0-development
@@ -8,12 +8,16 @@ environment:
   sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
-  cupertino_icons: ^1.0.6
+  fluorflow: ^3.1.0
   flutter:
     sdk: flutter
   flutter_pdfium:
 
 dev_dependencies:
+  build_runner: ^2.0.0
+  design_system_generator: ^4.1.0
+  fluorflow_generator: ^3.1.0
+  flutter_lints: ^3.0.0
   flutter_test:
     sdk: flutter
 

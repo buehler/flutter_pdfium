@@ -4,7 +4,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 
 import 'bindings/fpdf.dart';
-import 'bitmap.dart';
+import 'utils/bitmap.dart';
 import 'errors.dart';
 import 'native_lib.dart';
 
