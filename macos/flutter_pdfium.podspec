@@ -1,7 +1,5 @@
-#
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint flutter_pdfium.podspec` to validate before publishing.
-#
+version = '6276'
+
 Pod::Spec.new do |s|
   s.name             = 'flutter_pdfium'
   s.version          = '0.0.1'
@@ -24,4 +22,17 @@ A new Flutter FFI plugin project.
   s.platform = :osx, '10.11'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
+
+  s.prepare_command = <<-CMD
+    mkdir -p .tmp
+    cd .tmp
+    curl -Lo pdfium.tgz https://github.com/paulocoutinhox/pdfium-lib/releases/download/#{version}/macos.tgz
+    tar -xzf pdfium.tgz
+    rm pdfium.tgz
+    cd ..
+    mkdir -p Frameworks
+    cp .tmp/release/lib/libpdfium.a Frameworks/
+    mkdir -p
+    rm -rf .tmp/
+  CMD
 end
