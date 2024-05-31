@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:ffi/ffi.dart';
 
-import 'bindings/fpdf.dart';
-import 'utils/lazy.dart';
+import '../bindings/fpdf.dart';
+import '../utils/lazy.dart';
 
 typedef _Lookup = ffi.Pointer<T> Function<T extends ffi.NativeType>(
     String symbolName);

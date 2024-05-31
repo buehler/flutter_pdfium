@@ -3,11 +3,11 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
-import 'bindings/fpdf.dart';
+import '../bindings/fpdf.dart';
 import 'errors.dart';
 import 'native_lib.dart';
 import 'page.dart';
-import 'utils/lazy.dart';
+import '../utils/lazy.dart';
 
 final class Document with Iterable<Page> {
   final FPDF_DOCUMENT _pointer;

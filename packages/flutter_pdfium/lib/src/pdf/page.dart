@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 
-import 'bindings/fpdf.dart';
+import '../bindings/fpdf.dart';
 import 'errors.dart';
 import 'native_lib.dart';
 

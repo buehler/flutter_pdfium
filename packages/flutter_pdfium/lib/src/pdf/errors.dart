@@ -1,4 +1,4 @@
-import 'bindings/fpdf.dart';
+import '../bindings/fpdf.dart';
 import 'native_lib.dart';
 
 /// Defines error codes that the library may return.
