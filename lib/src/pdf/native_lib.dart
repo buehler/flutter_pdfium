@@ -8,9 +8,9 @@ import '../utils/lazy.dart';
 
 Pdfium initLibrary() {
   final lookup = switch (Platform.operatingSystem) {
-    'windows' => ffi.DynamicLibrary.open('pdfium.dll').lookup,
+    'windows' => ffi.DynamicLibrary.open('flutter_pdfium.dll').lookup,
     'ios' || 'macos' => ffi.DynamicLibrary.process().lookup,
-    'android' => ffi.DynamicLibrary.open('libpdfium.so').lookup,
+    // 'android' => ffi.DynamicLibrary.open('libpdfium.so').lookup,
     _ => throw Exception(
         'Platform ${Platform.operatingSystem} is not yet supported.'),
   };

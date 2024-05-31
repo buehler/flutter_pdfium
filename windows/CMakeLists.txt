@@ -12,6 +12,46 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 # This can be changed to accommodate different builds.
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../src" "${CMAKE_CURRENT_BINARY_DIR}/shared")
 
+# Explicitly opt in to modern CMake behaviors to avoid warnings with recent
+# versions of CMake.
+cmake_policy(VERSION 3.14...3.25)
+
+if(MSVC)
+  # Suppress warning C4098 for MSVC
+  target_compile_options(flutter_pdfium PRIVATE /wd4098)
+endif()
+
+set(PDFIUM_RELEASE chromium%2F6406)
+set(PDFIUM_DIR ${CMAKE_BINARY_DIR}/pdfium)
+
+file(MAKE_DIRECTORY ${PDFIUM_DIR})
+
+set(PDFIUM_DYN_LIB_FILENAME "pdfium.dll")
+set(PDFIUM_STATIC_LIB_FILENAME "pdfium.dll.lib")
+set(PDFIUM_PLATFORM "win")
+set(PDFIUM_LIB_DIR "bin")
+set(PDFIUM_WIN_ABI "x64")
+
+set(PDFIUM_ARCHIVE_NAME pdfium-${PDFIUM_PLATFORM}-${PDFIUM_WIN_ABI})
+set(PDFIUM_DYN_LIB_FILENAME ${PDFIUM_DIR}/bin/${PDFIUM_DYN_LIB_FILENAME})
+set(PDFIUM_STATIC_LIB_FILENAME ${PDFIUM_DIR}/lib/${PDFIUM_STATIC_LIB_FILENAME})
+
+if(NOT EXISTS ${PDFIUM_DYN_LIB_FILENAME} OR NOT EXISTS ${PDFIUM_STATIC_LIB_FILENAME})
+    message(STATUS "Download precompiled pdfium...")
+    file(DOWNLOAD https://github.com/bblanchon/pdfium-binaries/releases/download/${PDFIUM_RELEASE}/${PDFIUM_ARCHIVE_NAME}.tgz ${PDFIUM_DIR}/${PDFIUM_ARCHIVE_NAME}.tgz)
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar zxf ${PDFIUM_DIR}/${PDFIUM_ARCHIVE_NAME}.tgz
+        WORKING_DIRECTORY ${PDFIUM_DIR}
+        ERROR_QUIET
+    )
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR "Could not obtain pdfium binary for ${PDFIUM_WIN_ABI}")
+    endif()
+else()
+    message(STATUS "Use existing precompiled pdfium." )
+endif()
+
+
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
@@ -19,5 +59,8 @@ set(flutter_pdfium_bundled_libraries
   # Defined in ../src/CMakeLists.txt.
   # This can be changed to accommodate different builds.
   $<TARGET_FILE:flutter_pdfium>
+  ${PDFIUM_DYN_LIB_FILENAME}
   PARENT_SCOPE
 )
+
+target_link_libraries(flutter_pdfium PRIVATE ${PDFIUM_STATIC_LIB_FILENAME})

@@ -1,6 +1,6 @@
 version := "6276"
 
-@update-headers: download-headers create-ast create-mapping create-binding clean
+@configure: download-headers create-ast create-mapping create-binding
 
 @download-headers:
     #! /bin/sh
@@ -27,3 +27,6 @@ version := "6276"
 
 @clean:
     rm -rf ./.tmp
+
+@build-runner:
+    cd example && dart run build_runner build --delete-conflicting-outputs

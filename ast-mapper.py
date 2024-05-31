@@ -42,12 +42,13 @@ for file in [f for f in os.listdir("./.tmp/ast") if f.endswith(".json")]:
                         p.get("type", {}).get("qualType", "").split("(")[0].strip(),
                     )
                     for p in func.get("inner", [])
-                    if p.get("kind") == "ParmVarDecl"
+                    if p.get("kind") == "ParmVarDecl" and p.get("name") is not None
                 ],
             )
             for func in ast["inner"]
             if func["kind"] == "FunctionDecl"
             and func["loc"].get("includedFrom") is None
+            and func.get("name").startswith("FPDF")
         ]
 
 with open(os.path.join("./", "src", "flutter_pdfium.h"), "w") as out:
