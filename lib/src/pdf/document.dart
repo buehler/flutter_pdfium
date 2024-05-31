@@ -15,7 +15,7 @@ final class Document with Iterable<Page> {
 
   Document._(this._pointer)
       : _pages = List.generate(
-          fpdf().GetPageCount(_pointer),
+          pdfium().GetPageCount(_pointer),
           (index) => Lazy(() => loadPage(_pointer, index), closePage),
           growable: false,
         );
@@ -31,7 +31,7 @@ final class Document with Iterable<Page> {
 
     final voidPointer = dataPointer.cast<ffi.Void>();
 
-    final document = fpdf().LoadMemDocument(voidPointer, data.length,
+    final document = pdfium().LoadMemDocument(voidPointer, data.length,
         (password ?? '').toNativeUtf8().cast<ffi.Char>());
     if (document == ffi.nullptr) {
       throw getLastLibraryError();
@@ -44,7 +44,7 @@ final class Document with Iterable<Page> {
   /// Note that documents MUST BE CLOSED with [close] when they are
   /// no longer needed to prevent memory leaks.
   factory Document.fromPath(String path, [String? password]) {
-    final document = fpdf().LoadDocument(
+    final document = pdfium().LoadDocument(
       path.toNativeUtf8().cast<ffi.Char>(),
       (password ?? '').toNativeUtf8().cast<ffi.Char>(),
     );
@@ -65,12 +65,12 @@ final class Document with Iterable<Page> {
   Iterable<Bookmark> get bookmarks sync* {
     Iterable<(FPDF_BOOKMARK, int)> iterateChildren(
         FPDF_BOOKMARK anchor, int level) sync* {
-      var child = fpdf().BookmarkGetFirstChild(_pointer, anchor);
+      var child = pdfium().Bookmark_GetFirstChild(_pointer, anchor);
       while (child != ffi.nullptr) {
         yield (child, level);
         yield* iterateChildren(child, level + 1);
 
-        child = fpdf().BookmarkGetNextSibling(_pointer, child);
+        child = pdfium().Bookmark_GetNextSibling(_pointer, child);
       }
     }
 
@@ -87,7 +87,7 @@ final class Document with Iterable<Page> {
     for (final page in _pages) {
       page.dispose();
     }
-    fpdf().CloseDocument(_pointer);
+    pdfium().CloseDocument(_pointer);
   }
 
   @override
@@ -103,10 +103,10 @@ final class Bookmark {
   const Bookmark._(this._document, this._bookmark, this.depth);
 
   String get title {
-    final titleLength = fpdf().BookmarkGetTitle(_bookmark, ffi.nullptr, 0);
+    final titleLength = pdfium().Bookmark_GetTitle(_bookmark, ffi.nullptr, 0);
     final dataBuffer = malloc<ffi.Uint16>(titleLength);
-    fpdf()
-        .BookmarkGetTitle(_bookmark, dataBuffer.cast<ffi.Void>(), titleLength);
+    pdfium()
+        .Bookmark_GetTitle(_bookmark, dataBuffer.cast<ffi.Void>(), titleLength);
     final title = dataBuffer.cast<Utf16>().toDartString();
     malloc.free(dataBuffer);
 
@@ -114,12 +114,12 @@ final class Bookmark {
   }
 
   int get pageIndex {
-    final dest = fpdf().BookmarkGetDest(_document, _bookmark);
+    final dest = pdfium().Bookmark_GetDest(_document, _bookmark);
     if (dest == ffi.nullptr) {
       return -1;
     }
 
-    return fpdf().DestinationGetDestPageIndex(_document, dest);
+    return pdfium().Dest_GetDestPageIndex(_document, dest);
   }
 
   // () get pos {

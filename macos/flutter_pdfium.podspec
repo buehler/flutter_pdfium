@@ -32,7 +32,9 @@ A new Flutter FFI plugin project.
     cd ..
     mkdir -p Frameworks
     cp .tmp/release/lib/libpdfium.a Frameworks/
-    mkdir -p
     rm -rf .tmp/
   CMD
+
+  s.libraries = ['c++', 'z']
+  s.vendored_libraries = 'Frameworks/libpdfium.a'
 end

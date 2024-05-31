@@ -1,6 +1,6 @@
 version := "6276"
 
-@update-headers: download-headers create-ast create-mapping clean
+@update-headers: download-headers create-ast create-mapping create-binding clean
 
 @download-headers:
     #! /bin/sh
@@ -21,6 +21,9 @@ version := "6276"
 
 @create-mapping:
     python ./ast-mapper.py
+
+@create-binding:
+    dart run ffigen --config ffigen.yaml
 
 @clean:
     rm -rf ./.tmp

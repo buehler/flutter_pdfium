@@ -36,8 +36,8 @@ final class Page {
 
   Page._(this._pointer)
       : size = Size(
-          fpdf().GetPageWidthF(_pointer),
-          fpdf().GetPageHeightF(_pointer),
+          pdfium().GetPageWidthF(_pointer),
+          pdfium().GetPageHeightF(_pointer),
         );
 
   double get _ratio =>
@@ -70,20 +70,20 @@ final class Page {
         final scaledHeight = scaledSize.height.round();
 
         final bitmapPointer =
-            fpdf().Bitmap_Create(scaledWidth, scaledHeight, 1);
+            pdfium().Bitmap_Create(scaledWidth, scaledHeight, 1);
 
-        fpdf().Bitmap_FillRect(bitmapPointer, 0, 0, scaledWidth, scaledHeight,
+        pdfium().Bitmap_FillRect(bitmapPointer, 0, 0, scaledWidth, scaledHeight,
             backgroundColor.value);
-        fpdf().RenderPageBitmap(bitmapPointer, _pointer, 0, 0, scaledWidth,
+        pdfium().RenderPageBitmap(bitmapPointer, _pointer, 0, 0, scaledWidth,
             scaledHeight, rotation.index, flags);
-        final stride = fpdf().Bitmap_GetStride(bitmapPointer);
-        final bitmapData = fpdf()
+        final stride = pdfium().Bitmap_GetStride(bitmapPointer);
+        final bitmapData = pdfium()
             .Bitmap_GetBuffer(bitmapPointer)
             .cast<ffi.Uint8>()
             .asTypedList(scaledHeight * stride);
 
         final buffer = await ui.ImmutableBuffer.fromUint8List(bitmapData);
-        fpdf().Bitmap_Destroy(bitmapPointer);
+        pdfium().Bitmap_Destroy(bitmapPointer);
 
         final descriptor = ui.ImageDescriptor.raw(
           buffer,
@@ -99,7 +99,7 @@ final class Page {
 }
 
 Page loadPage(FPDF_DOCUMENT document, int index) {
-  final page = fpdf().LoadPage(document, index);
+  final page = pdfium().LoadPage(document, index);
   if (page == ffi.nullptr) {
     throw getLastLibraryError();
   }
@@ -108,5 +108,5 @@ Page loadPage(FPDF_DOCUMENT document, int index) {
 }
 
 void closePage(Page page) {
-  fpdf().ClosePage(page._pointer);
+  pdfium().ClosePage(page._pointer);
 }

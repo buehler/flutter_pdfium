@@ -1,74 +1,27 @@
+import 'package:fluorflow/fluorflow.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 
-import 'package:flutter_pdfium/flutter_pdfium.dart' as flutter_pdfium;
+import 'app.locator.dart';
+import 'app.router.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  await setupLocator();
+  runApp(const ExampleApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late int sumResult;
-  late Future<int> sumAsyncResult;
-
-  @override
-  void initState() {
-    super.initState();
-    sumResult = flutter_pdfium.sum(1, 2);
-    sumAsyncResult = flutter_pdfium.sumAsync(3, 4);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const textStyle = TextStyle(fontSize: 25);
-    const spacerSmall = SizedBox(height: 10);
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Native Packages'),
+  Widget build(BuildContext context) => MaterialApp(
+        title: 'PDFium Example',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          useMaterial3: true,
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              children: [
-                const Text(
-                  'This calls a native function through FFI that is shipped as source in the package. '
-                  'The native code is built as part of the Flutter Runner build.',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
-                ),
-                spacerSmall,
-                Text(
-                  'sum(1, 2) = $sumResult',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
-                ),
-                spacerSmall,
-                FutureBuilder<int>(
-                  future: sumAsyncResult,
-                  builder: (BuildContext context, AsyncSnapshot<int> value) {
-                    final displayValue =
-                        (value.hasData) ? value.data : 'loading';
-                    return Text(
-                      'await sumAsync(3, 4) = $displayValue',
-                      style: textStyle,
-                      textAlign: TextAlign.center,
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+        initialRoute: AppRoute.homeView.path,
+        onGenerateRoute: onGenerateRoute,
+        navigatorKey: NavigationService.navigatorKey,
+        navigatorObservers: [NavigationService.observer],
+      );
 }

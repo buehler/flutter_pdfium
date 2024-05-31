@@ -60,4 +60,4 @@ class PDFiumException implements Exception {
 }
 
 PDFiumException getLastLibraryError() =>
-    PDFiumException.fromLibraryError(fpdf().GetLastError());
+    PDFiumException.fromLibraryError(pdfium().GetLastError());
