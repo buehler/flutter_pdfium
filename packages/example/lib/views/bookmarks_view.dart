@@ -1,7 +1,7 @@
 import 'package:fluorflow/annotations.dart';
 import 'package:fluorflow/fluorflow.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfium/flutter_pdfium.dart';
+import 'package:flutter_pdfium/widgets.dart';
 
 import 'bookmarks_viewmodel.dart';
 
@@ -25,28 +25,41 @@ final class BookmarksView extends FluorFlowView<BookmarksViewModel> {
             const SizedBox(height: 8),
             const Divider(),
             const SizedBox(height: 8),
-            Expanded(
-              child: ListenableBuilder(
-                  listenable: viewModel.dataNotifier,
-                  builder: (context, _) =>
-                      switch ((viewModel.busy, viewModel.data)) {
-                        (true, _) => const CircularProgressIndicator(),
-                        (_, final Document doc) => SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                for (final bookmark in doc.bookmarks)
-                                  ListTile(
-                                    title: Text(
-                                        '${List.filled(bookmark.depth, '-').join()}${bookmark.title}'),
-                                    subtitle: Text(
-                                        'Page ${bookmark.pageIndex + 1} (@ ${bookmark.depth} level)'),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        _ => const Text('No document loaded'),
-                      }),
-            )
+            if (viewModel.data != null)
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            for (final bookmark in viewModel.data!.bookmarks)
+                              ListTile(
+                                title: Text(
+                                    '${List.filled(bookmark.depth, '-').join()}${bookmark.title}'),
+                                subtitle: Text(
+                                    'Page ${bookmark.pageIndex + 1} (@ ${bookmark.depth} level)'),
+                                onTap: () => viewModel.scrollTo(bookmark),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        controller: viewModel.pdfScrollController,
+                        padding: const EdgeInsets.only(
+                            left: 16, right: 16, bottom: 32),
+                        child: Column(
+                          children: viewModel.data!
+                              .map((page) => PageRenderer(page))
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
           ],
         ),
       );

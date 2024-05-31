@@ -1,21 +1,27 @@
 PODS:
+  - bitmap (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_pdfium_ios (0.0.1):
     - Flutter
 
 DEPENDENCIES:
+  - bitmap (from `.symlinks/plugins/bitmap/ios`)
   - Flutter (from `Flutter`)
   - flutter_pdfium_ios (from `.symlinks/plugins/flutter_pdfium_ios/ios`)
 
 EXTERNAL SOURCES:
+  bitmap:
+    :path: ".symlinks/plugins/bitmap/ios"
   Flutter:
     :path: Flutter
   flutter_pdfium_ios:
     :path: ".symlinks/plugins/flutter_pdfium_ios/ios"
 
 SPEC CHECKSUMS:
+  bitmap: 591b0556efe6e811a263b8dfdc511fe1faa72315
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_pdfium_ios: a1369624a5b3950d5f28a496a174e8741c56d6bf
+  flutter_pdfium_ios: e9ae2ae27480a1a56bff7d501f08c56ba3412520
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 

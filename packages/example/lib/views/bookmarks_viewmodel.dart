@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:fluorflow/fluorflow.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_pdfium/flutter_pdfium.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_pdfium/pdf.dart';
 
 final class BookmarksViewModel extends DataViewModel<Document?> {
+  final ScrollController pdfScrollController = ScrollController();
+
   BookmarksViewModel() : super(null);
 
   @override
@@ -14,9 +17,11 @@ final class BookmarksViewModel extends DataViewModel<Document?> {
   }
 
   Future loadDocument() async {
-    final byteData = await rootBundle.load('assets/multi-page-pdf.pdf');
+    final byteData = await rootBundle.load('assets/sample.pdf');
     data = Document.fromMemory(byteData.buffer.asUint8List());
   }
+
+  void scrollTo(Bookmark bookmark) {}
 
   @override
   void dispose() {

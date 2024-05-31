@@ -1,16 +1,18 @@
 import 'dart:ffi' as ffi;
+import 'dart:ui' as ui;
 
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 
 import 'bindings/fpdf.dart';
-import 'utils/bitmap.dart';
 import 'errors.dart';
 import 'native_lib.dart';
 
 /// The default rendering flags.
 const int _renderDefaultFlags = FPDF_LCD_TEXT | FPDF_REVERSE_BYTE_ORDER;
-const _dpi = 96.0;
+
+/// Base DPI for Flutter, based on
+/// https://groups.google.com/g/flutter-dev/c/oYN_prI7sio/m/ZUk9VSHUAQAJ
+const _baseDpi = 160.0;
 
 /// Defines the rotation of the rendered bitmap image of a pdf page.
 enum PageRenderRotation {
@@ -31,63 +33,69 @@ enum PageRenderRotation {
 final class Page {
   final FPDF_PAGE _pointer;
   final Size size;
-  final Size pixelSize;
 
   Page._(this._pointer)
       : size = Size(
           fpdf().GetPageWidthF(_pointer),
           fpdf().GetPageHeightF(_pointer),
-        ),
-        pixelSize = Size(
-              fpdf().GetPageWidthF(_pointer),
-              fpdf().GetPageHeightF(_pointer),
-            ) /
-            72 *
-            _dpi;
+        );
 
-  /// Render the page as a bitmap image.
-  MemoryImage renderBitmap(
-      {Color backgroundColor = const Color.fromARGB(255, 255, 255, 255),
-      bool grayscale = false,
-      bool renderAnnotations = false,
-      PageRenderRotation rotation = PageRenderRotation.rotate0,
-      double scale = 1.0}) {
-    assert(scale > 0.0, 'Scale must be greater than 0.0');
+  double get _ratio =>
+      WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
 
-    var flags = _renderDefaultFlags;
-    if (grayscale) {
-      flags = flags | FPDF_GRAYSCALE;
-    }
-    if (renderAnnotations) {
-      flags = flags | FPDF_ANNOT;
-    }
+  Size get pixelSize => (size / 72.0) * _baseDpi * _ratio;
 
-    final scaledSize = pixelSize * scale;
+  /// Renders the page as a raw [ui.Image]. The returned image is parsed
+  /// by flutters native image codec. The received image must be disposed
+  /// when it is no longer needed.
+  Future<ui.Image> renderImage(
+          {Color backgroundColor = const Color.fromARGB(255, 255, 255, 255),
+          bool grayscale = false,
+          bool renderAnnotations = false,
+          PageRenderRotation rotation = PageRenderRotation.rotate0,
+          double scale = 1.0}) =>
+      Future(() async {
+        assert(scale > 0.0, 'Scale must be greater than 0.0');
 
-    final bitmapPointer = fpdf()
-        .Bitmap_Create(scaledSize.width.round(), scaledSize.height.round(), 1);
+        var flags = _renderDefaultFlags;
+        if (grayscale) {
+          flags = flags | FPDF_GRAYSCALE;
+        }
+        if (renderAnnotations) {
+          flags = flags | FPDF_ANNOT;
+        }
 
-    fpdf().Bitmap_FillRect(bitmapPointer, 0, 0, scaledSize.width.round(),
-        scaledSize.height.round(), backgroundColor.value);
-    fpdf().RenderPageBitmap(
-        bitmapPointer,
-        _pointer,
-        0,
-        0,
-        scaledSize.width.round(),
-        scaledSize.height.round(),
-        rotation.index,
-        flags);
-    final stride = fpdf().Bitmap_GetStride(bitmapPointer);
-    final bitmapData = fpdf()
-        .Bitmap_GetBuffer(bitmapPointer)
-        .cast<ffi.Uint8>()
-        .asTypedList(scaledSize.height.round() * stride);
-    final image = buildBitmap(scaledSize, bitmapData);
-    fpdf().Bitmap_Destroy(bitmapPointer);
+        final scaledSize = pixelSize * scale;
+        final scaledWidth = scaledSize.width.round();
+        final scaledHeight = scaledSize.height.round();
 
-    return MemoryImage(image);
-  }
+        final bitmapPointer =
+            fpdf().Bitmap_Create(scaledWidth, scaledHeight, 1);
+
+        fpdf().Bitmap_FillRect(bitmapPointer, 0, 0, scaledWidth, scaledHeight,
+            backgroundColor.value);
+        fpdf().RenderPageBitmap(bitmapPointer, _pointer, 0, 0, scaledWidth,
+            scaledHeight, rotation.index, flags);
+        final stride = fpdf().Bitmap_GetStride(bitmapPointer);
+        final bitmapData = fpdf()
+            .Bitmap_GetBuffer(bitmapPointer)
+            .cast<ffi.Uint8>()
+            .asTypedList(scaledHeight * stride);
+
+        final buffer = await ui.ImmutableBuffer.fromUint8List(bitmapData);
+        fpdf().Bitmap_Destroy(bitmapPointer);
+
+        final descriptor = ui.ImageDescriptor.raw(
+          buffer,
+          width: scaledWidth,
+          height: scaledHeight,
+          pixelFormat: ui.PixelFormat.bgra8888,
+        );
+        final codec = await descriptor.instantiateCodec();
+        final frameInfo = await codec.getNextFrame();
+
+        return frameInfo.image;
+      });
 }
 
 Page loadPage(FPDF_DOCUMENT document, int index) {

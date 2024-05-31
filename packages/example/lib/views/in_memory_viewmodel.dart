@@ -1,6 +1,6 @@
 import 'package:fluorflow/fluorflow.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_pdfium/flutter_pdfium.dart';
+import 'package:flutter_pdfium/pdf.dart';
 
 final class InMemoryViewModel extends DataViewModel<Document?> {
   InMemoryViewModel() : super(null);

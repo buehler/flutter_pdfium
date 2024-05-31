@@ -1,7 +1,8 @@
 import 'package:fluorflow/annotations.dart';
 import 'package:fluorflow/fluorflow.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfium/flutter_pdfium.dart';
+import 'package:flutter_pdfium/pdf.dart';
+import 'package:flutter_pdfium/widgets.dart';
 
 import 'in_memory_viewmodel.dart';
 
@@ -40,12 +41,15 @@ final class InMemoryView extends FluorFlowView<InMemoryViewModel> {
                   builder: (context, _) =>
                       switch ((viewModel.busy, viewModel.data)) {
                         (true, _) => const CircularProgressIndicator(),
-                        (_, final Document doc) => ListView.builder(
+                        (_, final Document doc) => SingleChildScrollView(
                             padding: const EdgeInsets.only(
                                 left: 16, right: 16, bottom: 32),
-                            itemCount: doc.pageCount,
-                            itemBuilder: (context, index) =>
-                                Image(image: doc[index].renderBitmap())),
+                            child: Column(
+                              children: doc
+                                  .map((page) => PageRenderer(page))
+                                  .toList(),
+                            ),
+                          ),
                         _ => const Text('No document loaded'),
                       }),
             )
