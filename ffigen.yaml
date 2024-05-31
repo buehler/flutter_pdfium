@@ -2,18 +2,59 @@
 name: FlutterPdfiumBindings
 description: |
   Bindings for `src/flutter_pdfium.h`.
-
   Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: 'lib/flutter_pdfium_bindings_generated.dart'
+
+output: 'lib/src/bindings/flutter_pdfium.dart'
+
 headers:
   entry-points:
     - 'src/flutter_pdfium.h'
-  include-directives:
-    - 'src/flutter_pdfium.h'
+
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
   // ignore_for_file: non_constant_identifier_names
+  // ignore_for_file: unused_field, unused_element
+
 comments:
   style: any
   length: full
+# functions:
+#   include:
+#     - FPDF.*
+#   exclude:
+#     - FPDFAction.*
+#     - FPDFLink.*
+#   rename:
+#     'FPDFBookmark_(.*)': Bookmark$1
+#     'FPDFDest_(.*)': Destination$1
+#     'FPDFText_(.*)': Text$1
+#     'FPDF_(.*)': $1
+#     'FPDF(.*)': $1
+
+# structs:
+#   exclude:
+#     - .*
+
+# unions:
+#   exclude:
+#     - .*
+
+# enums:
+#   exclude:
+#     - .*
+
+# unnamed-enums:
+#   exclude:
+#     - .*
+
+# macros:
+#   include:
+#     - FPDF_.*
+#     - PAGEMODE_.*
+#   exclude:
+#     - FPDF_UNSP_.*
+
+# globals:
+#   exclude:
+#     - .*
