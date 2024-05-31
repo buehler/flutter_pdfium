@@ -4,10 +4,10 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 
 import '../bindings/fpdf.dart';
+import '../utils/lazy.dart';
 import 'errors.dart';
 import 'native_lib.dart';
 import 'page.dart';
-import '../utils/lazy.dart';
 
 final class Document with Iterable<Page> {
   final FPDF_DOCUMENT _pointer;
@@ -77,6 +77,10 @@ final class Document with Iterable<Page> {
     yield* iterateChildren(ffi.nullptr, 0)
         .map((b) => Bookmark._(_pointer, b.$1, b.$2));
   }
+
+  // vertical page offset?
+  double pageOffset(int index) =>
+      take(index + 1).fold<double>(0, (a, b) => a + b.size.height);
 
   /// Close the document and release all resources.
   void close() {

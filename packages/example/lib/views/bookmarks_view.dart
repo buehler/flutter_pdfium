@@ -47,6 +47,7 @@ final class BookmarksView extends FluorFlowView<BookmarksViewModel> {
                     ),
                     Expanded(
                       child: SingleChildScrollView(
+                        key: viewModel.pdfScrollKey,
                         controller: viewModel.pdfScrollController,
                         padding: const EdgeInsets.only(
                             left: 16, right: 16, bottom: 32),
