@@ -44,10 +44,15 @@ final class InMemoryView extends FluorFlowView<InMemoryViewModel> {
                         (_, final Document doc) => SingleChildScrollView(
                             padding: const EdgeInsets.only(
                                 left: 16, right: 16, bottom: 32),
-                            child: Column(
-                              children: doc
-                                  .map((page) => PageRenderer(page))
+                            child: FutureBuilder(
+                              future: doc.pages
+                                  .map((p) => PageRenderer(p))
                                   .toList(),
+                              builder: (context, snapshot) => snapshot.hasData
+                                  ? Column(
+                                      children: snapshot.requireData,
+                                    )
+                                  : const CircularProgressIndicator(),
                             ),
                           ),
                         _ => const Text('No document loaded'),

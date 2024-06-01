@@ -1,4 +1,5 @@
 import 'dart:ffi' as ffi;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import '../bindings/pdfium.dart';
 import 'errors.dart';
 import 'native_lib.dart';
+import 'pdf_worker.dart';
 
 /// The default rendering flags.
 const int _renderDefaultFlags = FPDF_LCD_TEXT | FPDF_REVERSE_BYTE_ORDER;
@@ -40,73 +42,79 @@ final class Page {
           pdfium().GetPageHeightF(_pointer),
         );
 
+  Size get pixelSize => (size / 72.0) * _baseDpi * _ratio;
+
   double get _ratio =>
       WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
-
-  Size get pixelSize => (size / 72.0) * _baseDpi * _ratio;
 
   /// Renders the page as a raw [ui.Image]. The returned image is parsed
   /// by flutters native image codec. The received image must be disposed
   /// when it is no longer needed.
   Future<ui.Image> renderImage(
-          {Color backgroundColor = const Color.fromARGB(255, 255, 255, 255),
-          bool grayscale = false,
-          bool renderAnnotations = false,
-          PageRenderRotation rotation = PageRenderRotation.rotate0,
-          double scale = 1.0}) =>
-      Future(() async {
-        assert(scale > 0.0, 'Scale must be greater than 0.0');
+      {Color backgroundColor = const Color.fromARGB(255, 255, 255, 255),
+      bool grayscale = false,
+      bool renderAnnotations = false,
+      PageRenderRotation rotation = PageRenderRotation.rotate0,
+      double scale = 1.0}) async {
+    assert(scale > 0.0, 'Scale must be greater than 0.0');
 
-        var flags = _renderDefaultFlags;
-        if (grayscale) {
-          flags = flags | FPDF_GRAYSCALE;
-        }
-        if (renderAnnotations) {
-          flags = flags | FPDF_ANNOT;
-        }
+    var flags = _renderDefaultFlags;
+    if (grayscale) {
+      flags = flags | FPDF_GRAYSCALE;
+    }
+    if (renderAnnotations) {
+      flags = flags | FPDF_ANNOT;
+    }
 
-        final scaledSize = pixelSize * scale;
-        final scaledWidth = scaledSize.width.round();
-        final scaledHeight = scaledSize.height.round();
+    final scaledSize = pixelSize * scale;
+    final scaledWidth = scaledSize.width.round();
+    final scaledHeight = scaledSize.height.round();
 
-        final bitmapPointer =
-            pdfium().Bitmap_Create(scaledWidth, scaledHeight, 1);
+    final data = await pdfWorker.compute(() {
+      final bitmapPointer =
+          pdfium().Bitmap_Create(scaledWidth, scaledHeight, 1);
 
-        pdfium().Bitmap_FillRect(bitmapPointer, 0, 0, scaledWidth, scaledHeight,
-            backgroundColor.value);
-        pdfium().RenderPageBitmap(bitmapPointer, _pointer, 0, 0, scaledWidth,
-            scaledHeight, rotation.index, flags);
-        final stride = pdfium().Bitmap_GetStride(bitmapPointer);
-        final bitmapData = pdfium()
-            .Bitmap_GetBuffer(bitmapPointer)
-            .cast<ffi.Uint8>()
-            .asTypedList(scaledHeight * stride);
+      pdfium().Bitmap_FillRect(bitmapPointer, 0, 0, scaledWidth, scaledHeight,
+          backgroundColor.value);
+      pdfium().RenderPageBitmap(bitmapPointer, _pointer, 0, 0, scaledWidth,
+          scaledHeight, rotation.index, flags);
+      final stride = pdfium().Bitmap_GetStride(bitmapPointer);
+      final bitmapData = pdfium()
+          .Bitmap_GetBuffer(bitmapPointer)
+          .cast<ffi.Uint8>()
+          .asTypedList(scaledHeight * stride);
 
-        final buffer = await ui.ImmutableBuffer.fromUint8List(bitmapData);
-        pdfium().Bitmap_Destroy(bitmapPointer);
+      final buffer = bitmapData.toList(growable: false);
 
-        final descriptor = ui.ImageDescriptor.raw(
-          buffer,
-          width: scaledWidth,
-          height: scaledHeight,
-          pixelFormat: ui.PixelFormat.bgra8888,
-        );
-        final codec = await descriptor.instantiateCodec();
-        final frameInfo = await codec.getNextFrame();
+      pdfium().Bitmap_Destroy(bitmapPointer);
 
-        return frameInfo.image;
-      });
-}
+      return buffer;
+    });
 
-Page loadPage(FPDF_DOCUMENT document, int index) {
-  final page = pdfium().LoadPage(document, index);
-  if (page == ffi.nullptr) {
-    throw getLastLibraryError();
+    final buffer =
+        await ui.ImmutableBuffer.fromUint8List(Uint8List.fromList(data));
+    final descriptor = ui.ImageDescriptor.raw(
+      buffer,
+      width: scaledWidth,
+      height: scaledHeight,
+      pixelFormat: ui.PixelFormat.bgra8888,
+    );
+    final codec = await descriptor.instantiateCodec();
+    final frameInfo = await codec.getNextFrame();
+
+    return frameInfo.image;
   }
-
-  return Page._(page);
 }
 
-void closePage(Page page) {
-  pdfium().ClosePage(page._pointer);
-}
+Future<Page> loadPage(FPDF_DOCUMENT document, int index) async =>
+    await pdfWorker.compute(() {
+      final page = pdfium().LoadPage(document, index);
+      if (page == ffi.nullptr) {
+        throw getLastLibraryError();
+      }
+
+      return Page._(page);
+    });
+
+Future closePage(Page page) async =>
+    await pdfWorker.compute(() => pdfium().ClosePage(page._pointer));

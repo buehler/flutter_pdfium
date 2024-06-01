@@ -15,15 +15,18 @@ class PageRenderer extends StatefulWidget {
 
 class _PageRendererState extends State<PageRenderer> {
   ui.Image? _image;
+  var _disposed = false;
 
   @override
   void initState() {
-    widget.page.renderImage().then((image) => setState(() => _image = image));
+    widget.page.renderImage().then((image) =>
+        !_disposed ? setState(() => _image = image) : image.dispose());
     super.initState();
   }
 
   @override
   void dispose() {
+    _disposed = true;
     _image?.dispose();
     super.dispose();
   }

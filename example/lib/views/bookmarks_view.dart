@@ -31,18 +31,21 @@ final class BookmarksView extends FluorFlowView<BookmarksViewModel> {
                   children: [
                     Expanded(
                       child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            for (final bookmark in viewModel.data!.bookmarks)
-                              ListTile(
-                                title: Text(
-                                    '${List.filled(bookmark.depth, '-').join()}${bookmark.title}'),
-                                subtitle: Text(
-                                    'Page ${bookmark.pageIndex + 1} (@ ${bookmark.depth} level)'),
-                                onTap: () => viewModel.scrollTo(bookmark),
-                              ),
-                          ],
-                        ),
+                        child: FutureBuilder(
+                            future: viewModel.data!.bookmarks
+                                .map((b) => ListTile(
+                                      title: Text(
+                                          '${List.filled(b.depth, '-').join()}${b.title}'),
+                                      subtitle: Text(
+                                          'Page ${b.pageIndex + 1} (@ ${b.depth} level)'),
+                                      onTap: () => viewModel.scrollTo(b),
+                                    ))
+                                .toList(),
+                            builder: (context, snapshot) => snapshot.hasData
+                                ? Column(
+                                    children: snapshot.requireData,
+                                  )
+                                : const CircularProgressIndicator()),
                       ),
                     ),
                     Expanded(
@@ -51,10 +54,15 @@ final class BookmarksView extends FluorFlowView<BookmarksViewModel> {
                         controller: viewModel.pdfScrollController,
                         padding: const EdgeInsets.only(
                             left: 16, right: 16, bottom: 32),
-                        child: Column(
-                          children: viewModel.data!
-                              .map((page) => PageRenderer(page))
+                        child: FutureBuilder(
+                          future: viewModel.data!.pages
+                              .map((p) => PageRenderer(p))
                               .toList(),
+                          builder: (context, snapshot) => snapshot.hasData
+                              ? Column(
+                                  children: snapshot.requireData,
+                                )
+                              : const CircularProgressIndicator(),
                         ),
                       ),
                     ),

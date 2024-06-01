@@ -19,7 +19,7 @@ final class BookmarksViewModel extends DataViewModel<Document?> {
 
   Future loadDocument() async {
     final byteData = await rootBundle.load('assets/sample.pdf');
-    data = Document.fromMemory(byteData.buffer.asUint8List());
+    data = await Document.fromMemory(byteData.buffer.asUint8List());
   }
 
   void scrollTo(Bookmark bookmark) async {
