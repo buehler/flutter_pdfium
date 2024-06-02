@@ -32,18 +32,19 @@ final class BookmarksView extends FluorFlowView<BookmarksViewModel> {
                     Expanded(
                       child: SingleChildScrollView(
                         child: FutureBuilder(
-                            future: viewModel.data!.bookmarks
-                                .map((b) => ListTile(
-                                      title: Text(
-                                          '${List.filled(b.depth, '-').join()}${b.title}'),
-                                      subtitle: Text(
-                                          'Page ${b.pageIndex + 1} (@ ${b.depth} level)'),
-                                      onTap: () => viewModel.scrollTo(b),
-                                    ))
-                                .toList(),
+                            future: viewModel.data!.bookmarks,
                             builder: (context, snapshot) => snapshot.hasData
                                 ? Column(
-                                    children: snapshot.requireData,
+                                    children: snapshot.requireData
+                                        .map((b) => ListTile(
+                                              title: Text(
+                                                  '${List.filled(b.depth, '-').join()}${b.title}'),
+                                              subtitle: Text(
+                                                  'Page ${b.pageIndex + 1} (@ ${b.depth} level)'),
+                                              onTap: () =>
+                                                  viewModel.scrollTo(b),
+                                            ))
+                                        .toList(),
                                   )
                                 : const CircularProgressIndicator()),
                       ),

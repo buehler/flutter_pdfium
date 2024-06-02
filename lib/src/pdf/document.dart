@@ -14,13 +14,47 @@ import 'page.dart';
 final class Document {
   final FPDF_DOCUMENT _pointer;
   final List<AsyncLazy<Page>> _pages;
+  final AsyncLazy<List<Bookmark>> _bookmarks;
 
   Document._(this._pointer)
       : _pages = List.generate(
           pdfium().GetPageCount(_pointer),
           (index) => AsyncLazy(() => loadPage(_pointer, index), closePage),
           growable: false,
-        );
+        ),
+        _bookmarks = AsyncLazy(() => pdfWorker.compute(() {
+              Iterable<(FPDF_BOOKMARK, int)> iterateChildren(
+                  FPDF_BOOKMARK anchor, int level) sync* {
+                var child = pdfium().Bookmark_GetFirstChild(_pointer, anchor);
+                while (child != ffi.nullptr) {
+                  yield (child, level);
+                  yield* iterateChildren(child, level + 1);
+
+                  child = pdfium().Bookmark_GetNextSibling(_pointer, child);
+                }
+              }
+
+              return iterateChildren(ffi.nullptr, 0).map((b) {
+                final (bookmarkPointer, level) = b;
+
+                final titleLength =
+                    pdfium().Bookmark_GetTitle(bookmarkPointer, ffi.nullptr, 0);
+                final dataBuffer = malloc<ffi.Uint16>(titleLength);
+                pdfium().Bookmark_GetTitle(
+                    bookmarkPointer, dataBuffer.cast<ffi.Void>(), titleLength);
+                final title = dataBuffer.cast<Utf16>().toDartString();
+                malloc.free(dataBuffer);
+
+                final dest =
+                    pdfium().Bookmark_GetDest(_pointer, bookmarkPointer);
+
+                return Bookmark._(
+                  title: title,
+                  pageIndex: pdfium().Dest_GetDestPageIndex(_pointer, dest),
+                  depth: level,
+                );
+              }).toList();
+            }));
 
   /// Load a (pdf) document from memory [data] with an optional [password].
   /// Note that documents MUST BE CLOSED with [close] when they are
@@ -69,50 +103,12 @@ final class Document {
     }
   }
 
-  Stream<Bookmark> get bookmarks async* {
-    Stream<(FPDF_BOOKMARK, int level)> iterateChildren(
-        FPDF_BOOKMARK anchor, int level) async* {
-      var child = await pdfWorker
-          .compute(() => pdfium().Bookmark_GetFirstChild(_pointer, anchor));
-      while (child != ffi.nullptr) {
-        yield (child, level);
-        yield* iterateChildren(child, level + 1);
-
-        child = await pdfWorker
-            .compute(() => pdfium().Bookmark_GetNextSibling(_pointer, child));
-      }
-    }
-
-    await for (final (bookmarkPointer, level)
-        in iterateChildren(ffi.nullptr, 0)) {
-      yield await pdfWorker.compute(() {
-        final titleLength =
-            pdfium().Bookmark_GetTitle(bookmarkPointer, ffi.nullptr, 0);
-        final dataBuffer = malloc<ffi.Uint16>(titleLength);
-        pdfium().Bookmark_GetTitle(
-            bookmarkPointer, dataBuffer.cast<ffi.Void>(), titleLength);
-        final title = dataBuffer.cast<Utf16>().toDartString();
-        malloc.free(dataBuffer);
-
-        final dest = pdfium().Bookmark_GetDest(_pointer, bookmarkPointer);
-
-        return Bookmark._(
-          title: title,
-          pageIndex: pdfium().Dest_GetDestPageIndex(_pointer, dest),
-          depth: level,
-        );
-      });
-
-      // () get pos {
-      //   final dest = fpdf().BookmarkGetDest(_document, _bookmark);
-      //   fpdf().DestinationGetLocationInPage(dest, hasXVal, hasYVal, hasZoomVal, x, y, zoom)
-      // }
-    }
-  }
+  Future<List<Bookmark>> get bookmarks async => await _bookmarks();
 
   // vertical page offset?
-  double pageOffset(int index) => 0;
-  // take(index + 1).fold<double>(0, (a, b) => a + b.size.height);
+  Future<double> pageOffset(int index, {bool sizeInPixel = true}) =>
+      pages.take(index).fold<double>(
+          0, (a, b) => a + (sizeInPixel ? b.pixelSize.height : b.size.height));
 
   /// Close the document and release all resources.
   void close() {

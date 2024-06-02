@@ -27,12 +27,11 @@ final class BookmarksViewModel extends DataViewModel<Document?> {
       return;
     }
 
+    final page = await data![bookmark.pageIndex];
     final renderBox =
         pdfScrollKey.currentContext?.findRenderObject() as RenderBox?;
-    final scalingFactor = (renderBox?.size.height ?? 1.0) /
-        (renderBox?.constraints.maxHeight ?? 1.0);
-
-    final offset = data!.pageOffset(bookmark.pageIndex) * scalingFactor;
+    final scalingFactor = (renderBox?.size.width ?? 0) / page.pixelSize.width;
+    final offset = (await data!.pageOffset(bookmark.pageIndex)) * scalingFactor;
 
     await pdfScrollController.animateTo(
       offset,
