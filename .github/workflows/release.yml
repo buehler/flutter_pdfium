@@ -25,7 +25,7 @@ jobs:
         with:
           channel: stable
       - run: gcloud auth print-identity-token --audiences=https://pub.dev | dart pub token add https://pub.dev
-      - uses: extractions/setup-just@v1
+      - uses: extractions/setup-just@v2
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -33,7 +33,7 @@ jobs:
       - name: generate code
         run: just
       - name: release
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
