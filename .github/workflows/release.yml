@@ -27,7 +27,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - uses: extractions/setup-just@v1
       - run: gcloud auth print-identity-token --audiences=https://pub.dev | dart pub token add https://pub.dev
+      - name: generate code
+        run: just
       - name: release
         uses: cycjimmy/semantic-release-action@v3
         with:
