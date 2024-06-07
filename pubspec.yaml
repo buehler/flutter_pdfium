@@ -1,6 +1,6 @@
 name: flutter_pdfium
 description: 'Dart FFI bindings for PDFium library. Downloads and links the library upon build.'
-version: 0.0.0-development
+version: 1.0.0
 homepage: https://github.com/buehler/flutter_pdfium
 repository: https://github.com/buehler/flutter_pdfium.git
 issue_tracker: https://github.com/buehler/flutter_pdfium/issues
