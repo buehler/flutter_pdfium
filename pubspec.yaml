@@ -1,7 +1,9 @@
 name: flutter_pdfium
-description: 'A new Flutter FFI plugin project.'
+description: 'Dart FFI bindings for PDFium library.'
 version: 0.0.0-development
-homepage: sadf
+homepage: https://github.com/buehler/flutter_pdfium
+repository: https://github.com/buehler/flutter_pdfium.git
+issue_tracker: https://github.com/buehler/flutter_pdfium/issues
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -24,8 +26,6 @@ flutter:
       android:
         ffiPlugin: true
       ios:
-        ffiPlugin: true
-      linux:
         ffiPlugin: true
       macos:
         ffiPlugin: true
