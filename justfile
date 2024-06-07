@@ -27,6 +27,3 @@ version := "6276"
 
 @clean:
     rm -rf ./.tmp
-
-@build-runner:
-    cd example && dart run build_runner build --delete-conflicting-outputs
