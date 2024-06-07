@@ -27,6 +27,8 @@ jobs:
       - run: gcloud auth print-identity-token --audiences=https://pub.dev | dart pub token add https://pub.dev
       - uses: extractions/setup-just@v1
       - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/checkout@v4
       - name: generate code
         run: just
