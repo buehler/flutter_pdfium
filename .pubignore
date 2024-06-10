@@ -1,0 +1,23 @@
+# Miscellaneous
+
+_.class
+_.log
+_.pyc
+_.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+/pubspec.lock
+**/doc/api/
+.dart_tool/
+build/
+.tmp/
+
+.releaserc.json
+ffigen.yaml
+ast-mapper.py
+justfile
