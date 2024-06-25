@@ -16,7 +16,7 @@ version := "6276"
     mkdir -p ./.tmp/ast
     for header in $(find ./.tmp/release/include -name "*.h" -maxdepth 1 -type f); do
         echo "Create AST for $header"
-        clang -Xclang -ast-dump=json -fsyntax-only $header > ./.tmp/ast/$(basename $header).json
+        clang -Xclang -ast-dump=json -fsyntax-only -fparse-all-comments $header > ./.tmp/ast/$(basename $header).json
     done
 
 @create-mapping:
