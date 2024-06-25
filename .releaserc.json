@@ -18,6 +18,12 @@
         "assets": ["CHANGELOG.md", "pubspec.yaml"]
       }
     ],
-    "@semantic-release/github"
+    [
+      "@semantic-release/github",
+      {
+        "successComment": false,
+        "failTitle": false
+      }
+    ]
   ]
 }
