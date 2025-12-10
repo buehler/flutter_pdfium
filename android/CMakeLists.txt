@@ -16,7 +16,7 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../src" "${CMAKE_CURRENT_BINARY_DI
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
 
-set(PDFIUM_RELEASE chromium%2F6406)
+set(PDFIUM_RELEASE chromium%2F7442)
 set(PDFIUM_DIR ${CMAKE_BINARY_DIR}/pdfium/${ANDROID_ABI})
 
 file(MAKE_DIRECTORY ${PDFIUM_DIR})
