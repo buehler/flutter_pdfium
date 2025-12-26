@@ -1,4 +1,4 @@
-version = '6276'
+version = '7442'
 
 Pod::Spec.new do |s|
   s.name             = 'flutter_pdfium'
