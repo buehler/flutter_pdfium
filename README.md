@@ -1,5 +1,10 @@
 # Flutter PDFium Bindings
 
+> This repository will no longer be maintained. There are way better alternatives that do get accepted in playstore instead of this bindings. I strongly advice to have a look at [pdfrx](https://github.com/espresso3389/pdfrx).
+
+
+## Old Readme :)
+
 This project is a Flutter plugin that provides bindings for the [PDFium](https://pdfium.googlesource.com/pdfium/) library. PDFium is an open-source PDF rendering engine that is used by the Chromium web browser. This FFI plugin delivers the native bindings for the library to Flutter and enables dynamic loading of the library for each platform. Further, the lib is not included in the package, but downloaded during the build process.
 
 > Note: MacOS and iOS will download the library files upon `pod install`, while the other platforms will download the respective libraries during the build process with `cmake`.
